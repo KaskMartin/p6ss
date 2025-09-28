@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import RichTextEditor from "@/components/RichTextEditor"
 
 interface Invitation {
   id: number
@@ -26,6 +27,11 @@ export default function InvitationsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [responding, setResponding] = useState<number | null>(null)
+  const [showCreateForm, setShowCreateForm] = useState(false)
+  const [createGroupId, setCreateGroupId] = useState("")
+  const [createEmail, setCreateEmail] = useState("")
+  const [createDescription, setCreateDescription] = useState("")
+  const [createLoading, setCreateLoading] = useState(false)
 
   useEffect(() => {
     if (status === "loading") return
@@ -81,6 +87,40 @@ export default function InvitationsPage() {
     }
   }
 
+  const handleCreateInvitation = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!createGroupId || !createEmail.trim()) return
+
+    setCreateLoading(true)
+    try {
+      const response = await fetch(`/api/groups/${createGroupId}/invitations`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          invited_email: createEmail,
+          description: createDescription || null,
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Failed to create invitation")
+      }
+
+      setCreateGroupId("")
+      setCreateEmail("")
+      setCreateDescription("")
+      setShowCreateForm(false)
+      fetchInvitations() // Refresh invitations list
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setCreateLoading(false)
+    }
+  }
+
   if (status === "loading" || loading) {
     return <p className="text-center mt-8">Loading invitations...</p>
   }
@@ -98,13 +138,80 @@ export default function InvitationsPage() {
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-extrabold text-gray-900">My Invitations</h1>
-          <Link
-            href="/groups"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-          >
-            Back to Groups
-          </Link>
+          <div className="flex space-x-3">
+            <button
+              onClick={() => setShowCreateForm(!showCreateForm)}
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+            >
+              {showCreateForm ? 'Cancel' : 'Create Invitation'}
+            </button>
+            <Link
+              href="/groups"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+            >
+              Back to Groups
+            </Link>
+          </div>
         </div>
+
+        {/* Create Invitation Form */}
+        {showCreateForm && (
+          <div className="bg-white shadow rounded-lg p-6 mb-8">
+            <h2 className="text-lg font-medium text-gray-900 mb-4">Create Invitation</h2>
+            <form onSubmit={handleCreateInvitation} className="space-y-4">
+              <div>
+                <label htmlFor="createGroupId" className="block text-sm font-medium text-gray-700">
+                  Group ID *
+                </label>
+                <input
+                  type="number"
+                  id="createGroupId"
+                  value={createGroupId}
+                  onChange={(e) => setCreateGroupId(e.target.value)}
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="Enter group ID"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="createEmail" className="block text-sm font-medium text-gray-700">
+                  Email Address *
+                </label>
+                <input
+                  type="email"
+                  id="createEmail"
+                  value={createEmail}
+                  onChange={(e) => setCreateEmail(e.target.value)}
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="Enter user's email address"
+                  required
+                />
+              </div>
+              <RichTextEditor
+                label="Invitation Message"
+                value={createDescription}
+                onChange={setCreateDescription}
+                placeholder="Optional message for the invitation (supports Markdown)"
+              />
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setShowCreateForm(false)}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={createLoading}
+                  className="px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {createLoading ? 'Creating...' : 'Create Invitation'}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
 
         {invitations.length === 0 ? (
           <div className="bg-white shadow rounded-lg p-6">
@@ -127,7 +234,7 @@ export default function InvitationsPage() {
                         <p className="text-sm text-gray-700">
                           <span className="font-medium">Message from {invitation.invited_by_name || invitation.invited_by_email}:</span>
                         </p>
-                        <div className="mt-2 prose prose-sm max-w-none">
+                        <div className="mt-2 prose prose-sm max-w-none text-black">
                           <ReactMarkdown remarkPlugins={[remarkGfm]}>
                             {invitation.description}
                           </ReactMarkdown>

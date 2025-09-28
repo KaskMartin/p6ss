@@ -414,7 +414,11 @@ export default function GroupDetailPage() {
                       <div>
                         <p className="font-medium text-gray-900">{invitation.invited_email}</p>
                         {invitation.description && (
-                          <p className="text-sm text-gray-600 mt-1">{invitation.description}</p>
+                          <div className="mt-1 prose prose-sm max-w-none prose-gray">
+                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                              {invitation.description}
+                            </ReactMarkdown>
+                          </div>
                         )}
                         <p className="text-xs text-gray-500 mt-1">
                           Sent: {new Date(invitation.created_at).toLocaleDateString()}
