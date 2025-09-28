@@ -1,0 +1,26 @@
+services:
+  db-p6ss:
+    image: yobasystems/alpine-mariadb:10.5.11-x86_64
+    restart: always
+    environment:
+      MYSQL_USER: user
+      MYSQL_PASSWORD: secret
+      MYSQL_DATABASE: p6ss
+      MYSQL_ROOT_PASSWORD: secret
+      SERVICE_EXPOSE_EXTERNAL_ADDRESS: "true"
+    ports:
+      - 3344:3306
+    logging:
+      driver: none
+    networks:
+      p6ss:
+        aliases:
+          - mysql
+    volumes:
+      - db-p6ss:/var/lib/mysql
+
+volumes:
+  db-p6ss:
+
+networks:
+  p6ss:
