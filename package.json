@@ -13,6 +13,7 @@
     "migrate": "npx tsx src/lib/database/migrate.ts up",
     "migrate:down": "npx tsx src/lib/database/migrate.ts down",
     "migrate:status": "npx tsx src/lib/database/migration-status.ts",
+    "clean-db": "npx tsx src/lib/database/clean-db.ts",
     "setup-db": "npx tsx scripts/setup-db.ts",
     "make-admin": "npx tsx src/lib/database/make-first-user-admin.ts",
     "update-passwords": "npx tsx src/lib/database/update-passwords.ts"

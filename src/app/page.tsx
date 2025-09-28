@@ -27,11 +27,11 @@ export default function Home() {
                 <>
                   <span className="text-gray-700">
                     Welcome, {session.user?.email}
-                    {session.user?.isAdmin && (
+                    {session.user?.isAdmin ? (
                       <span className="ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
                         Admin
                       </span>
-                    )}
+                    ) : null}
                   </span>
                   {session.user?.isAdmin && (
                     <Link
