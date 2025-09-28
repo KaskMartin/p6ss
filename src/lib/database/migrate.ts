@@ -1,71 +1,108 @@
 import { db } from '../database'
+import { readdir } from 'fs/promises'
+import { join } from 'path'
 
-async function migrate() {
+interface Migration {
+  name: string
+  up: (db: any) => Promise<void>
+  down: (db: any) => Promise<void>
+}
+
+async function loadMigrations(): Promise<Migration[]> {
+  const migrationsDir = join(__dirname, 'migrations')
+  const files = await readdir(migrationsDir)
+  const migrationFiles = files
+    .filter(file => file.endsWith('.ts') && file !== 'index.ts')
+    .sort()
+
+  const migrations: Migration[] = []
+
+  for (const file of migrationFiles) {
+    const migration = await import(join(migrationsDir, file))
+    migrations.push({
+      name: file.replace('.ts', ''),
+      up: migration.up,
+      down: migration.down
+    })
+  }
+
+  return migrations
+}
+
+async function getAppliedMigrations(): Promise<string[]> {
   try {
-    console.log('Starting database migration...')
-
-    // Create users table
-    await db.schema
-      .createTable('users')
-      .ifNotExists()
-      .addColumn('id', 'integer', (col) => col.primaryKey().autoIncrement())
-      .addColumn('email', 'varchar(255)', (col) => col.notNull().unique())
-      .addColumn('name', 'varchar(255)')
-      .addColumn('password', 'varchar(255)', (col) => col.notNull())
-      .addColumn('created_at', 'datetime', (col) => col.notNull())
-      .addColumn('updated_at', 'datetime', (col) => col.notNull())
+    const applied = await db
+      .selectFrom('migrations')
+      .select('name')
       .execute()
+    return applied.map(m => m.name)
+  } catch (error) {
+    // If migrations table doesn't exist, return empty array
+    return []
+  }
+}
 
-    console.log('✅ Users table created successfully')
+async function markMigrationAsApplied(migrationName: string): Promise<void> {
+  await db
+    .insertInto('migrations')
+    .values({
+      name: migrationName,
+      applied_at: new Date()
+    })
+    .execute()
+}
 
-    // Create sessions table for NextAuth
-    await db.schema
-      .createTable('sessions')
-      .ifNotExists()
-      .addColumn('id', 'varchar(255)', (col) => col.primaryKey())
-      .addColumn('session_token', 'varchar(255)', (col) => col.notNull().unique())
-      .addColumn('user_id', 'integer', (col) => col.notNull())
-      .addColumn('expires', 'datetime', (col) => col.notNull())
-      .addColumn('created_at', 'datetime', (col) => col.notNull())
-      .addColumn('updated_at', 'datetime', (col) => col.notNull())
-      .execute()
+async function markMigrationAsRolledBack(migrationName: string): Promise<void> {
+  await db
+    .deleteFrom('migrations')
+    .where('name', '=', migrationName)
+    .execute()
+}
 
-    console.log('✅ Sessions table created successfully')
+export async function runMigrations(direction: 'up' | 'down' = 'up'): Promise<void> {
+  try {
+    console.log(`Starting migration ${direction}...`)
 
-    // Create accounts table for NextAuth
-    await db.schema
-      .createTable('accounts')
-      .ifNotExists()
-      .addColumn('id', 'varchar(255)', (col) => col.primaryKey())
-      .addColumn('user_id', 'integer', (col) => col.notNull())
-      .addColumn('type', 'varchar(255)', (col) => col.notNull())
-      .addColumn('provider', 'varchar(255)', (col) => col.notNull())
-      .addColumn('provider_account_id', 'varchar(255)', (col) => col.notNull())
-      .addColumn('refresh_token', 'text')
-      .addColumn('access_token', 'text')
-      .addColumn('expires_at', 'integer')
-      .addColumn('token_type', 'varchar(255)')
-      .addColumn('scope', 'varchar(255)')
-      .addColumn('id_token', 'text')
-      .addColumn('session_state', 'varchar(255)')
-      .addColumn('created_at', 'datetime', (col) => col.notNull())
-      .addColumn('updated_at', 'datetime', (col) => col.notNull())
-      .execute()
+    const migrations = await loadMigrations()
+    const appliedMigrations = await getAppliedMigrations()
 
-    console.log('✅ Accounts table created successfully')
+    if (direction === 'up') {
+      // Run pending migrations
+      const pendingMigrations = migrations.filter(m => !appliedMigrations.includes(m.name))
+      
+      if (pendingMigrations.length === 0) {
+        console.log('✅ No pending migrations')
+        return
+      }
 
-    // Create verification_tokens table for NextAuth
-    await db.schema
-      .createTable('verification_tokens')
-      .ifNotExists()
-      .addColumn('identifier', 'varchar(255)', (col) => col.notNull())
-      .addColumn('token', 'varchar(255)', (col) => col.notNull())
-      .addColumn('expires', 'datetime', (col) => col.notNull())
-      .execute()
+      for (const migration of pendingMigrations) {
+        console.log(`Running migration: ${migration.name}`)
+        await migration.up(db)
+        await markMigrationAsApplied(migration.name)
+        console.log(`✅ Applied migration: ${migration.name}`)
+      }
 
-    console.log('✅ Verification tokens table created successfully')
+      console.log(`🎉 Successfully applied ${pendingMigrations.length} migrations`)
+    } else {
+      // Rollback migrations in reverse order
+      const migrationsToRollback = migrations
+        .filter(m => appliedMigrations.includes(m.name))
+        .reverse()
 
-    console.log('🎉 Database migration completed successfully!')
+      if (migrationsToRollback.length === 0) {
+        console.log('✅ No migrations to rollback')
+        return
+      }
+
+      for (const migration of migrationsToRollback) {
+        console.log(`Rolling back migration: ${migration.name}`)
+        await migration.down(db)
+        await markMigrationAsRolledBack(migration.name)
+        console.log(`✅ Rolled back migration: ${migration.name}`)
+      }
+
+      console.log(`🎉 Successfully rolled back ${migrationsToRollback.length} migrations`)
+    }
   } catch (error) {
     console.error('❌ Migration failed:', error)
     throw error
@@ -76,7 +113,6 @@ async function migrate() {
 
 // Run migration if this file is executed directly
 if (require.main === module) {
-  migrate().catch(console.error)
+  const direction = process.argv[2] as 'up' | 'down' || 'up'
+  runMigrations(direction).catch(console.error)
 }
-
-export { migrate }
