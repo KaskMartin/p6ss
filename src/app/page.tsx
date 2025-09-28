@@ -27,13 +27,13 @@ export default function Home() {
                 <>
                   <span className="text-gray-700">
                     Welcome, {session.user?.email}
-                    {session.user?.isAdmin && (
+                    {(session.user as any)?.isAdmin && (
                       <span className="ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
                         Admin
                       </span>
                     )}
                   </span>
-                  {session.user?.isAdmin && (
+                  {(session.user as any)?.isAdmin && (
                     <Link
                       href="/admin"
                       className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
@@ -69,9 +69,17 @@ export default function Home() {
                 Welcome to P6SS
               </h2>
               {session ? (
-                <p className="text-gray-600">
-                  You are successfully signed in!
-                </p>
+                <div>
+                  <p className="text-gray-600">
+                    You are successfully signed in!
+                  </p>
+                  <Link
+                  href="/generate-image"
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                  >
+                  Generate Image
+                  </Link>
+                </div>
               ) : (
                 <p className="text-gray-600">
                   Please sign in to access the application.

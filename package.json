@@ -10,15 +10,11 @@
     "lint": "eslint",
     "docker:start": "docker compose up",
     "docker:start:db": "docker compose up -d db-p6ss",
-    "migrate": "npx tsx src/lib/database/migrate.ts up",
-    "migrate:down": "npx tsx src/lib/database/migrate.ts down",
-    "migrate:status": "npx tsx src/lib/database/migration-status.ts",
-    "setup-db": "npx tsx scripts/setup-db.ts",
-    "make-admin": "npx tsx src/lib/database/make-first-user-admin.ts",
-    "update-passwords": "npx tsx src/lib/database/update-passwords.ts"
+    "migrate": "npx tsx lib/database/migrate.ts"
   },
   "dependencies": {
-    "@types/bcryptjs": "^3.0.0",
+    "@google/genai": "^1.21.0",
+    "@google/generative-ai": "^0.21.0",
     "bcryptjs": "^3.0.2",
     "kysely": "^0.28.7",
     "mysql2": "^3.15.1",
@@ -36,7 +32,6 @@
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
     "tailwindcss": "^4",
-    "tsx": "^4.20.6",
     "typescript": "^5"
   }
 }
