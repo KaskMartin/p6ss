@@ -19,6 +19,7 @@ interface Group {
 interface GroupsData {
   userGroups: Group[]
   allGroups: Group[]
+  isGlobalAdmin: boolean
 }
 
 export default function GroupsPage() {
@@ -256,16 +257,17 @@ export default function GroupsPage() {
             </div>
           </div>
 
-          {/* All Groups */}
-          <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-            <div className="px-4 py-5 sm:px-6">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">
-                All Groups ({groupsData?.allGroups.length || 0})
-              </h3>
-              <p className="mt-1 max-w-2xl text-sm text-gray-500">
-                Browse and join available groups
-              </p>
-            </div>
+          {/* All Groups - Only for Global Admins */}
+          {groupsData?.isGlobalAdmin && (
+            <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+              <div className="px-4 py-5 sm:px-6">
+                <h3 className="text-lg leading-6 font-medium text-gray-900">
+                  All Groups ({groupsData?.allGroups.length || 0})
+                </h3>
+                <p className="mt-1 max-w-2xl text-sm text-gray-500">
+                  As a global admin, you can see all groups in the system
+                </p>
+              </div>
             <div className="border-t border-gray-200">
               {groupsData?.allGroups.length === 0 ? (
                 <div className="px-4 py-5 sm:px-6">
@@ -310,6 +312,7 @@ export default function GroupsPage() {
               )}
             </div>
           </div>
+          )}
         </div>
       </div>
     </div>

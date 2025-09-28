@@ -36,11 +36,23 @@ export async function GET() {
       .where('group_members.user_id', '=', userId)
       .execute()
 
-    // Get all groups (for browsing/joining)
-    const allGroups = await db
-      .selectFrom('groups')
-      .selectAll()
-      .execute()
+    // Check if user is global admin
+    const user = await db
+      .selectFrom('users')
+      .select('is_admin')
+      .where('id', '=', userId)
+      .executeTakeFirst()
+
+    const isGlobalAdmin = user?.is_admin || false
+
+    let allGroups: any[] = []
+    if (isGlobalAdmin) {
+      // Only global admins can see all groups
+      allGroups = await db
+        .selectFrom('groups')
+        .selectAll()
+        .execute()
+    }
 
     // Convert BigInt IDs to numbers for JSON serialization
     const serializableUserGroups = userGroups.map(group => ({
@@ -57,7 +69,8 @@ export async function GET() {
 
     return NextResponse.json({
       userGroups: serializableUserGroups,
-      allGroups: serializableAllGroups
+      allGroups: serializableAllGroups,
+      isGlobalAdmin
     })
   } catch (error) {
     console.error('Error fetching groups:', error)

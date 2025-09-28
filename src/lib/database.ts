@@ -94,6 +94,18 @@ export interface Database {
     created_at: Date
     updated_at: Date
   }
+  invitations: {
+    id: number
+    group_id: number
+    invited_email: string
+    invited_by: number
+    description: string | null
+    status: 'pending' | 'accepted' | 'declined'
+    accepted_at: Date | null
+    declined_at: Date | null
+    created_at: Date
+    updated_at: Date
+  }
 }
 
 // Create Kysely instance

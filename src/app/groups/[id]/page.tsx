@@ -44,6 +44,12 @@ export default function GroupDetailPage() {
   const [editName, setEditName] = useState("")
   const [editDescription, setEditDescription] = useState("")
   const [editLoading, setEditLoading] = useState(false)
+  const [showInviteForm, setShowInviteForm] = useState(false)
+  const [inviteEmail, setInviteEmail] = useState("")
+  const [inviteDescription, setInviteDescription] = useState("")
+  const [inviteLoading, setInviteLoading] = useState(false)
+  const [invitations, setInvitations] = useState<any[]>([])
+  const [showInvitations, setShowInvitations] = useState(false)
 
   const groupId = params.id as string
 
@@ -56,6 +62,7 @@ export default function GroupDetailPage() {
     }
 
     fetchGroupDetails()
+    fetchInvitations()
   }, [session, status, router, groupId])
 
   const fetchGroupDetails = async () => {
@@ -141,8 +148,55 @@ export default function GroupDetailPage() {
     }
   }
 
+  const fetchInvitations = async () => {
+    try {
+      const response = await fetch(`/api/groups/${groupId}/invitations`)
+      if (response.ok) {
+        const data = await response.json()
+        setInvitations(data.invitations || [])
+      }
+    } catch (err) {
+      console.error('Error fetching invitations:', err)
+    }
+  }
+
+  const handleCreateInvitation = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!inviteEmail.trim()) return
+
+    setInviteLoading(true)
+    try {
+      const response = await fetch(`/api/groups/${groupId}/invitations`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          invited_email: inviteEmail,
+          description: inviteDescription || null,
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Failed to create invitation")
+      }
+
+      setInviteEmail("")
+      setInviteDescription("")
+      setShowInviteForm(false)
+      fetchInvitations() // Refresh invitations
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setInviteLoading(false)
+    }
+  }
+
   const canEdit = groupData?.userRole?.role_name === 'admin' || 
                   (groupData?.group.created_by === parseInt(session?.user?.id || '0'))
+  
+  const canInvite = canEdit // Same permissions as editing
 
   if (status === "loading" || loading) {
     return (
@@ -218,6 +272,22 @@ export default function GroupDetailPage() {
                 Edit Group
               </button>
             )}
+            {canInvite && (
+              <button
+                onClick={() => setShowInviteForm(!showInviteForm)}
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+              >
+                {showInviteForm ? 'Cancel Invite' : 'Invite User'}
+              </button>
+            )}
+            {canInvite && (
+              <button
+                onClick={() => setShowInvitations(!showInvitations)}
+                className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+              >
+                {showInvitations ? 'Hide Invitations' : 'View Invitations'}
+              </button>
+            )}
             <Link
               href="/groups"
               className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium"
@@ -282,6 +352,107 @@ export default function GroupDetailPage() {
                 </button>
               </div>
             </form>
+          </div>
+        )}
+
+        {/* Invite Form */}
+        {showInviteForm && (
+          <div className="bg-white shadow rounded-lg p-6 mb-8">
+            <h2 className="text-lg font-medium text-gray-900 mb-4">Invite User to Group</h2>
+            <form onSubmit={handleCreateInvitation} className="space-y-4">
+              <div>
+                <label htmlFor="inviteEmail" className="block text-sm font-medium text-gray-700">
+                  Email Address *
+                </label>
+                <input
+                  type="email"
+                  id="inviteEmail"
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="Enter user's email address"
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="inviteDescription" className="block text-sm font-medium text-gray-700">
+                  Invitation Message
+                </label>
+                <textarea
+                  id="inviteDescription"
+                  value={inviteDescription}
+                  onChange={(e) => setInviteDescription(e.target.value)}
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="Optional message for the invitation"
+                  rows={3}
+                />
+              </div>
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setShowInviteForm(false)}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={inviteLoading}
+                  className="px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {inviteLoading ? 'Sending...' : 'Send Invitation'}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {/* Invitations List */}
+        {showInvitations && (
+          <div className="bg-white shadow rounded-lg p-6 mb-8">
+            <h2 className="text-lg font-medium text-gray-900 mb-4">Group Invitations</h2>
+            {invitations.length === 0 ? (
+              <p className="text-gray-500">No invitations sent yet.</p>
+            ) : (
+              <div className="space-y-4">
+                {invitations.map((invitation) => (
+                  <div key={invitation.id} className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="font-medium text-gray-900">{invitation.invited_email}</p>
+                        {invitation.description && (
+                          <p className="text-sm text-gray-600 mt-1">{invitation.description}</p>
+                        )}
+                        <p className="text-xs text-gray-500 mt-1">
+                          Sent: {new Date(invitation.created_at).toLocaleDateString()}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Status: <span className={`font-medium ${
+                            invitation.status === 'pending' ? 'text-yellow-600' :
+                            invitation.status === 'accepted' ? 'text-green-600' :
+                            'text-red-600'
+                          }`}>
+                            {invitation.status}
+                          </span>
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        {invitation.status === 'accepted' && invitation.accepted_at && (
+                          <p className="text-xs text-green-600">
+                            Accepted: {new Date(invitation.accepted_at).toLocaleDateString()}
+                          </p>
+                        )}
+                        {invitation.status === 'declined' && invitation.declined_at && (
+                          <p className="text-xs text-red-600">
+                            Declined: {new Date(invitation.declined_at).toLocaleDateString()}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
