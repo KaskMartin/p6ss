@@ -29,7 +29,7 @@ export async function GET(
       return NextResponse.json({ error: 'Group not found' }, { status: 404 })
     }
 
-    // Check if user is a member of this group
+    // Check if user is a member of this group or is a global admin
     const membership = await db
       .selectFrom('group_members')
       .select('id')
@@ -37,7 +37,14 @@ export async function GET(
       .where('group_id', '=', groupId)
       .executeTakeFirst()
 
-    if (!membership) {
+    // Get user's admin status
+    const user = await db
+      .selectFrom('users')
+      .select('is_admin')
+      .where('id', '=', userId)
+      .executeTakeFirst()
+
+    if (!membership && !user?.is_admin) {
       return NextResponse.json({ error: 'You are not a member of this group' }, { status: 403 })
     }
 
@@ -64,13 +71,21 @@ export async function GET(
       .execute()
 
     // Get user's role in this group
-    const userRole = await db
+    let userRole = await db
       .selectFrom('user_group_roles')
       .leftJoin('group_roles', 'user_group_roles.role_id', 'group_roles.id')
       .select(['group_roles.name as role_name', 'group_roles.permissions'])
       .where('user_group_roles.user_id', '=', userId)
       .where('user_group_roles.group_id', '=', groupId)
       .executeTakeFirst()
+
+    // If user is global admin but not a member, give them admin role
+    if (!userRole && user?.is_admin) {
+      userRole = {
+        role_name: 'admin',
+        permissions: '["all"]'
+      }
+    }
 
     // Convert BigInt IDs to numbers for JSON serialization
     const serializableGroup = {

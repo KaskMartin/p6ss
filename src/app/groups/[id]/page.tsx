@@ -391,7 +391,8 @@ export default function GroupDetailPage() {
   }
 
   const canEdit = groupData?.userRole?.role_name === 'admin' || 
-                  (groupData?.group.created_by === parseInt(session?.user?.id || '0'))
+                  (groupData?.group.created_by === parseInt(session?.user?.id || '0')) ||
+                  session?.user?.isAdmin
   
   const canInvite = canEdit // Same permissions as editing
 
@@ -555,48 +556,63 @@ export default function GroupDetailPage() {
           </div>
         )}
 
-        {/* Invite Form */}
+        {/* Invite Form Modal */}
         {showInviteForm && (
-          <div className="bg-white shadow rounded-lg p-6 mb-8">
-            <h2 className="text-lg font-medium text-gray-900 mb-4">Invite User to Group</h2>
-            <form onSubmit={handleCreateInvitation} className="space-y-4">
-              <div>
-                <label htmlFor="inviteEmail" className="block text-sm font-medium text-gray-700">
-                  Email Address *
-                </label>
-                <input
-                  type="email"
-                  id="inviteEmail"
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                  placeholder="Enter user's email address"
-                  required
-                />
+          <div className="fixed inset-0 bg-[rgba(75,85,99,0.5)] overflow-y-auto h-full w-full z-50">
+            <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+              <div className="mt-3">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-medium text-gray-900">Invite User to Group</h3>
+                  <button
+                    onClick={() => setShowInviteForm(false)}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                
+                <form onSubmit={handleCreateInvitation} className="space-y-4">
+                  <div>
+                    <label htmlFor="inviteEmail" className="block text-sm font-medium text-gray-700">
+                      Email Address *
+                    </label>
+                    <input
+                      type="email"
+                      id="inviteEmail"
+                      value={inviteEmail}
+                      onChange={(e) => setInviteEmail(e.target.value)}
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="Enter user's email address"
+                      required
+                    />
+                  </div>
+                  <RichTextEditor
+                    label="Invitation Message"
+                    value={inviteDescription}
+                    onChange={setInviteDescription}
+                    placeholder="Optional message for the invitation (supports Markdown)"
+                  />
+                  <div className="flex justify-end space-x-3 pt-4">
+                    <button
+                      type="button"
+                      onClick={() => setShowInviteForm(false)}
+                      className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={inviteLoading}
+                      className="px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {inviteLoading ? 'Sending...' : 'Send Invitation'}
+                    </button>
+                  </div>
+                </form>
               </div>
-              <RichTextEditor
-                label="Invitation Message"
-                value={inviteDescription}
-                onChange={setInviteDescription}
-                placeholder="Optional message for the invitation (supports Markdown)"
-              />
-              <div className="flex justify-end space-x-3">
-                <button
-                  type="button"
-                  onClick={() => setShowInviteForm(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={inviteLoading}
-                  className="px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {inviteLoading ? 'Sending...' : 'Send Invitation'}
-                </button>
-              </div>
-            </form>
+            </div>
           </div>
         )}
 
