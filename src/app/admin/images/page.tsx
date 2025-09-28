@@ -512,8 +512,8 @@ export default function AdminImagesPage() {
                             <h4 className="text-sm font-medium text-gray-900 capitalize">
                               {image.type.replace('_', ' ')}
                             </h4>
-                            <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                              {image.uid.slice(0, 8)}...
+                            <span className="inline-flex text-xs font-semibold text-blue-800">
+                              {image.uid}
                             </span>
                           </div>
 
