@@ -33,14 +33,20 @@ export default function Home() {
                       </span>
                     ) : null}
                   </span>
-                  {session.user?.isAdmin && (
-                    <Link
-                      href="/admin"
-                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-                    >
-                      Admin Dashboard
-                    </Link>
-                  )}
+                      <Link
+                        href="/groups"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                      >
+                        Groups
+                      </Link>
+                      {session.user?.isAdmin && (
+                        <Link
+                          href="/admin"
+                          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                        >
+                          Admin Dashboard
+                        </Link>
+                      )}
                   <button
                     onClick={() => signOut()}
                     className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium"

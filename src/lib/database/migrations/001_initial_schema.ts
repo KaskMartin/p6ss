@@ -6,11 +6,12 @@ export async function up(db: Kysely<any>): Promise<void> {
     .createTable('users')
     .ifNotExists()
     .addColumn('id', 'integer', (col) => col.primaryKey().autoIncrement())
-    .addColumn('email', 'varchar(255)', (col) => col.notNull().unique())
-    .addColumn('name', 'varchar(255)')
-    .addColumn('password', 'varchar(255)', (col) => col.notNull())
-    .addColumn('created_at', 'datetime', (col) => col.notNull())
-    .addColumn('updated_at', 'datetime', (col) => col.notNull())
+      .addColumn('email', 'varchar(255)', (col) => col.notNull().unique())
+      .addColumn('name', 'varchar(255)')
+      .addColumn('password', 'varchar(255)', (col) => col.notNull())
+      .addColumn('is_admin', 'boolean', (col) => col.defaultTo(false).notNull())
+      .addColumn('created_at', 'datetime', (col) => col.notNull())
+      .addColumn('updated_at', 'datetime', (col) => col.notNull())
     .execute()
 
   // Create sessions table for NextAuth

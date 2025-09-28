@@ -60,6 +60,40 @@ export interface Database {
     token: string
     expires: Date
   }
+  groups: {
+    id: number
+    name: string
+    description: string | null
+    created_by: number
+    created_at: Date
+    updated_at: Date
+  }
+  group_members: {
+    id: number
+    user_id: number
+    group_id: number
+    joined_at: Date
+    created_at: Date
+    updated_at: Date
+  }
+  group_roles: {
+    id: number
+    name: string
+    description: string | null
+    permissions: string | null
+    created_at: Date
+    updated_at: Date
+  }
+  user_group_roles: {
+    id: number
+    user_id: number
+    group_id: number
+    role_id: number
+    assigned_by: number
+    assigned_at: Date
+    created_at: Date
+    updated_at: Date
+  }
 }
 
 // Create Kysely instance
