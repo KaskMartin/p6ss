@@ -67,11 +67,12 @@ async function importImages() {
     console.log('Checking for existing images...')
     const existingImages = await db
       .selectFrom('images')
-      .select(['url', 'thumb_url'])
+      .select(['url', 'thumb_url', 'uid'])
       .execute()
     
     const existingUrls = new Set(existingImages.map(img => img.url))
     const existingThumbUrls = new Set(existingImages.map(img => img.thumb_url))
+    const existingUids = new Set(existingImages.map(img => img.uid))
     
     console.log(`Found ${existingImages.length} existing images in database`)
     
@@ -82,14 +83,27 @@ async function importImages() {
     
     for (const image of images) {
       try {
-        // Check for duplicates
+        // Check for duplicates by URL
         if (existingUrls.has(image.fullUrl) || existingThumbUrls.has(image.thumbnail)) {
-          console.log(`⚠ Skipped (duplicate): ${image.fullUrl}`)
+          console.log(`⚠ Skipped (duplicate URL): ${image.fullUrl}`)
           skipped++
           continue
         }
         
-        const uid = generateImageUID()
+        // Generate unique UID and check for UID duplicates
+        let uid = generateImageUID()
+        let attempts = 0
+        while (existingUids.has(uid) && attempts < 10) {
+          uid = generateImageUID()
+          attempts++
+        }
+        
+        if (attempts >= 10) {
+          console.log(`⚠ Skipped (could not generate unique UID): ${image.fullUrl}`)
+          skipped++
+          continue
+        }
+        
         const now = new Date()
         
         // Insert into database
@@ -107,9 +121,13 @@ async function importImages() {
           })
           .execute()
         
+        // Add new UID to existing set to prevent duplicates in same run
+        existingUids.add(uid)
+        
         imported++
         console.log(`✓ Imported: ${image.fullUrl}`)
         console.log(`  Thumbnail: ${image.thumbnail}`)
+        console.log(`  UID: ${uid}`)
       } catch (error) {
         errors++
         console.error(`✗ Failed to import ${image.fullUrl}:`, error)
