@@ -1118,7 +1118,7 @@ export default function GroupDetailPage() {
                           <p className="text-sm text-gray-600 mt-1">{event.subtitle}</p>
                         )}
                         {event.description && (
-                          <div className="mt-2 prose prose-sm max-w-none prose-gray">
+                          <div className="mt-2 prose prose-sm max-w-none text-black">
                             <ReactMarkdown remarkPlugins={[remarkGfm]}>
                               {event.description}
                             </ReactMarkdown>
