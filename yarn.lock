@@ -1995,6 +1995,11 @@ keyv@^4.5.4:
   dependencies:
     json-buffer "3.0.1"
 
+kysely@^0.28.7:
+  version "0.28.7"
+  resolved "https://registry.yarnpkg.com/kysely/-/kysely-0.28.7.tgz#461d160865825f89173a7f814489e92a91b13864"
+  integrity sha512-u/cAuTL4DRIiO2/g4vNGRgklEKNIj5Q3CG7RoUB5DV5SfEC2hMvPxKi0GWPmnzwL2ryIeud2VTcEEmqzTzEPNw==
+
 language-subtag-registry@^0.3.20:
   version "0.3.23"
   resolved "https://registry.yarnpkg.com/language-subtag-registry/-/language-subtag-registry-0.3.23.tgz#23529e04d9e3b74679d70142df3fd2eb6ec572e7"
