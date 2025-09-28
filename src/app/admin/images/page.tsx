@@ -354,105 +354,120 @@ export default function AdminImagesPage() {
           </div>
             )}
 
-            {/* Edit Image Form */}
+            {/* Edit Image Modal */}
             {showEditForm && editingImage && (
-              <div className="bg-white shadow rounded-lg p-6 mb-8">
-                <h2 className="text-lg font-medium text-gray-900 mb-4">Edit Image</h2>
-                <form onSubmit={handleUpdateImage} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Image URL *
-                      </label>
-                      <input
-                        type="url"
-                        value={imageUrl}
-                        onChange={(e) => setImageUrl(e.target.value)}
-                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                        placeholder="Enter image URL"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Thumbnail URL
-                      </label>
-                      <input
-                        type="url"
-                        value={imageThumbUrl}
-                        onChange={(e) => setImageThumbUrl(e.target.value)}
-                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                        placeholder="Enter thumbnail URL (optional)"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Image Type *
-                      </label>
-                      <select
-                        value={imageType}
-                        onChange={(e) => setImageType(e.target.value as any)}
-                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                        required
+              <div className="fixed inset-0 bg-[rgba(75,85,99,0.5)] overflow-y-auto h-full w-full z-50">
+                <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+                  <div className="mt-3">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-medium text-gray-900">Edit Image</h3>
+                      <button
+                        onClick={cancelEditImage}
+                        className="text-gray-400 hover:text-gray-600"
                       >
-                        <option value="list_item">List Item</option>
-                        <option value="header">Header</option>
-                        <option value="background">Background</option>
-                        <option value="invite_paper">Invite Paper</option>
-                      </select>
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
                     </div>
-                    <div>
-                      {/* Empty div for grid layout */}
-                    </div>
-                  </div>
+                    
+                    <form onSubmit={handleUpdateImage} className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Image URL *
+                          </label>
+                          <input
+                            type="url"
+                            value={imageUrl}
+                            onChange={(e) => setImageUrl(e.target.value)}
+                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                            placeholder="Enter image URL"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Thumbnail URL
+                          </label>
+                          <input
+                            type="url"
+                            value={imageThumbUrl}
+                            onChange={(e) => setImageThumbUrl(e.target.value)}
+                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                            placeholder="Enter thumbnail URL (optional)"
+                          />
+                        </div>
+                      </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Width (pixels)
-                      </label>
-                      <input
-                        type="number"
-                        value={imageWidth}
-                        onChange={(e) => setImageWidth(e.target.value)}
-                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                        placeholder="Enter width"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Height (pixels)
-                      </label>
-                      <input
-                        type="number"
-                        value={imageHeight}
-                        onChange={(e) => setImageHeight(e.target.value)}
-                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                        placeholder="Enter height"
-                      />
-                    </div>
-                  </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Image Type *
+                          </label>
+                          <select
+                            value={imageType}
+                            onChange={(e) => setImageType(e.target.value as any)}
+                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                            required
+                          >
+                            <option value="list_item">List Item</option>
+                            <option value="header">Header</option>
+                            <option value="background">Background</option>
+                            <option value="invite_paper">Invite Paper</option>
+                          </select>
+                        </div>
+                        <div>
+                          {/* Empty div for grid layout */}
+                        </div>
+                      </div>
 
-                  <div className="flex justify-end space-x-3">
-                    <button
-                      type="button"
-                      onClick={cancelEditImage}
-                      className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={creating}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {creating ? 'Updating...' : 'Update Image'}
-                    </button>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Width (pixels)
+                          </label>
+                          <input
+                            type="number"
+                            value={imageWidth}
+                            onChange={(e) => setImageWidth(e.target.value)}
+                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                            placeholder="Enter width"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Height (pixels)
+                          </label>
+                          <input
+                            type="number"
+                            value={imageHeight}
+                            onChange={(e) => setImageHeight(e.target.value)}
+                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                            placeholder="Enter height"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end space-x-3 pt-4">
+                        <button
+                          type="button"
+                          onClick={cancelEditImage}
+                          className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={creating}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {creating ? 'Updating...' : 'Update Image'}
+                        </button>
+                      </div>
+                    </form>
                   </div>
-                </form>
+                </div>
               </div>
             )}
 
