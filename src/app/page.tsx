@@ -1,6 +1,6 @@
 "use client"
 
-import { useSession, signIn, signOut } from "next-auth/react"
+import { useSession } from "next-auth/react"
 import Link from "next/link"
 
 export default function Home() {
@@ -16,63 +16,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <h1 className="text-xl font-semibold">P6SS</h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              {session ? (
-                <>
-                  <span className="text-gray-700">
-                    Welcome, {session.user?.email}
-                    {session.user?.isAdmin ? (
-                      <span className="ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                        Admin
-                      </span>
-                    ) : null}
-                  </span>
-                      <Link
-                        href="/groups"
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-                      >
-                        Groups
-                      </Link>
-                      <Link
-                        href="/invitations"
-                        className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-                      >
-                        Invitations
-                      </Link>
-                      {session.user?.isAdmin && (
-                        <Link
-                          href="/admin"
-                          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-                        >
-                          Admin Dashboard
-                        </Link>
-                      )}
-                  <button
-                    onClick={() => signOut()}
-                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-                  >
-                    Sign Out
-                  </button>
-                </>
-              ) : (
-                <Link
-                  href="/auth/signin"
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-                >
-                  Sign In
-                </Link>
-              )}
-            </div>
-          </div>
-        </div>
-      </nav>
-
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
           <div className="border-4 border-dashed border-gray-200 rounded-lg h-96 flex items-center justify-center">
