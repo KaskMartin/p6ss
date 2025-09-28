@@ -1,5 +1,7 @@
 import { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
+import { db } from "./database"
+import bcrypt from "bcryptjs"
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -10,23 +12,38 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        // Add your authentication logic here
-        // This is a placeholder - implement your actual authentication
-        if (credentials?.email && credentials?.password) {
-          // Example: Check against your database
-          // const user = await getUserByEmail(credentials.email)
-          // if (user && await verifyPassword(credentials.password, user.password)) {
-          //   return { id: user.id, email: user.email, name: user.name }
-          // }
-          
-          // For now, return a mock user for testing
-          return {
-            id: "1",
-            email: credentials.email,
-            name: "Test User"
-          }
+        if (!credentials?.email || !credentials?.password) {
+          return null
         }
-        return null
+
+        try {
+          // Find user by email
+          const user = await db
+            .selectFrom('users')
+            .selectAll()
+            .where('email', '=', credentials.email)
+            .executeTakeFirst()
+
+          if (!user) {
+            return null
+          }
+
+          // Verify password
+          const isValidPassword = await bcrypt.compare(credentials.password, user.password)
+          
+          if (!isValidPassword) {
+            return null
+          }
+
+          return {
+            id: user.id.toString(),
+            email: user.email,
+            name: user.name || user.email,
+          }
+        } catch (error) {
+          console.error('Authentication error:', error)
+          return null
+        }
       }
     })
   ],
