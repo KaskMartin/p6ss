@@ -5,7 +5,7 @@ import { authOptions } from '@/lib/auth'
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -14,7 +14,8 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const groupId = parseInt(params.id)
+    const { id } = await params
+    const groupId = parseInt(id)
     const userId = parseInt(session.user.id)
 
     // Check if group exists
@@ -84,7 +85,7 @@ export async function POST(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -93,7 +94,8 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const groupId = parseInt(params.id)
+    const { id } = await params
+    const groupId = parseInt(id)
     const userId = parseInt(session.user.id)
 
     // Check if user is a member

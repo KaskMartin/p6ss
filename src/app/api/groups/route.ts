@@ -68,13 +68,21 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions)
+    console.log('Session in groups POST:', session)
 
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!session) {
+      console.log('No session found')
+      return NextResponse.json({ error: 'Not authenticated. Please sign in.' }, { status: 401 })
+    }
+
+    if (!session.user?.id) {
+      console.log('No user ID in session')
+      return NextResponse.json({ error: 'Invalid session. Please sign in again.' }, { status: 401 })
     }
 
     const { name, description } = await request.json()
     const userId = parseInt(session.user.id)
+    console.log('Creating group for user ID:', userId, 'with name:', name)
 
     if (!name) {
       return NextResponse.json({ error: 'Group name is required' }, { status: 400 })
@@ -82,7 +90,9 @@ export async function POST(request: Request) {
 
     // Create the group
     const now = new Date()
-    const newGroup = await db
+    console.log('Creating group with values:', { name, description, created_by: userId })
+    
+    const insertResult = await db
       .insertInto('groups')
       .values({
         name,
@@ -91,15 +101,24 @@ export async function POST(request: Request) {
         created_at: now,
         updated_at: now,
       })
-      .returning(['id', 'name', 'description', 'created_by'])
-      .executeTakeFirst()
+      .execute()
 
-    // Add creator as admin member
+    console.log('Group creation result:', insertResult)
+
+    // Get the inserted group ID from the result (insertResult is an array)
+    const result = insertResult[0]
+    const groupId = Number(result.insertId)
+    console.log('Group ID from insertId:', groupId, 'Raw insertId:', result.insertId)
+
+    if (!groupId || isNaN(groupId)) {
+      throw new Error('Failed to create group - no valid ID returned')
+    }
+    
     await db
       .insertInto('group_members')
       .values({
         user_id: userId,
-        group_id: Number(newGroup.id),
+        group_id: groupId,
         joined_at: now,
         created_at: now,
         updated_at: now,
@@ -115,12 +134,15 @@ export async function POST(request: Request) {
 
     if (adminRole) {
       // Assign admin role to creator
+      const roleId = typeof adminRole.id === 'bigint' ? Number(adminRole.id) : adminRole.id
+      console.log('Role ID for assignment:', roleId, 'Type:', typeof adminRole.id)
+      
       await db
         .insertInto('user_group_roles')
         .values({
           user_id: userId,
-          group_id: Number(newGroup.id),
-          role_id: Number(adminRole.id),
+          group_id: groupId,
+          role_id: roleId,
           assigned_by: userId,
           assigned_at: now,
           created_at: now,
@@ -133,10 +155,10 @@ export async function POST(request: Request) {
       { 
         message: 'Group created successfully', 
         group: {
-          id: Number(newGroup.id),
-          name: newGroup.name,
-          description: newGroup.description,
-          created_by: Number(newGroup.created_by)
+          id: groupId,
+          name: name,
+          description: description,
+          created_by: userId
         }
       },
       { status: 201 }

@@ -3,6 +3,7 @@
 import { useSession } from "next-auth/react"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 
 interface Group {
   id: number
@@ -164,7 +165,7 @@ export default function GroupsPage() {
                   id="groupName"
                   value={newGroupName}
                   onChange={(e) => setNewGroupName(e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                   placeholder="Enter group name"
                   required
                 />
@@ -177,7 +178,7 @@ export default function GroupsPage() {
                   id="groupDescription"
                   value={newGroupDescription}
                   onChange={(e) => setNewGroupDescription(e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                   placeholder="Enter group description (optional)"
                   rows={3}
                 />
@@ -223,7 +224,14 @@ export default function GroupsPage() {
                     <div key={group.id} className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                       <dt className="text-sm font-medium text-gray-500">Group</dt>
                       <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                        <div className="font-medium">{group.name}</div>
+                        <div className="font-medium">
+                          <Link 
+                            href={`/groups/${group.id}`}
+                            className="text-indigo-600 hover:text-indigo-500"
+                          >
+                            {group.name}
+                          </Link>
+                        </div>
                         {group.description && (
                           <div className="text-gray-600 mt-1">{group.description}</div>
                         )}
@@ -269,7 +277,14 @@ export default function GroupsPage() {
                     <div key={group.id} className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                       <dt className="text-sm font-medium text-gray-500">Group</dt>
                       <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                        <div className="font-medium">{group.name}</div>
+                        <div className="font-medium">
+                          <Link 
+                            href={`/groups/${group.id}`}
+                            className="text-indigo-600 hover:text-indigo-500"
+                          >
+                            {group.name}
+                          </Link>
+                        </div>
                         {group.description && (
                           <div className="text-gray-600 mt-1">{group.description}</div>
                         )}
