@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useSession } from "next-auth/react"
+import { useSession, signOut } from "next-auth/react"
 
 export default function Header() {
   const { data: session } = useSession()
@@ -56,12 +56,12 @@ export default function Header() {
             <span className="text-sm text-gray-700">
               {session.user.name || session.user.email}
             </span>
-            <Link
-              href="/api/auth/signout"
+            <button
+              onClick={() => signOut()}
               className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 transition-colors"
             >
               Sign Out
-            </Link>
+            </button>
           </div>
         </div>
       </div>

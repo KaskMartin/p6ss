@@ -7,34 +7,7 @@ import Link from "next/link"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import RichTextEditor from "@/components/RichTextEditor"
-
-interface Group {
-  id: number
-  name: string
-  description: string | null
-  created_by: number
-  created_at: string
-  updated_at: string
-}
-
-interface Member {
-  id: number
-  email: string
-  name: string | null
-  is_admin: boolean
-  joined_at: string
-  role_name: string | null
-  permissions: string | null
-}
-
-interface GroupData {
-  group: Group
-  members: Member[]
-  userRole: {
-    role_name: string
-    permissions: string
-  } | null
-}
+import { GroupData } from "@/types/db"
 
 export default function GroupDetailPage() {
   const { data: session, status } = useSession()
@@ -46,6 +19,7 @@ export default function GroupDetailPage() {
   const [showEditForm, setShowEditForm] = useState(false)
   const [editName, setEditName] = useState("")
   const [editDescription, setEditDescription] = useState("")
+  const [editPublicLink, setEditPublicLink] = useState(false)
   const [editLoading, setEditLoading] = useState(false)
   const [showInviteForm, setShowInviteForm] = useState(false)
   const [inviteEmail, setInviteEmail] = useState("")
@@ -320,6 +294,7 @@ export default function GroupDetailPage() {
         body: JSON.stringify({
           name: editName,
           description: editDescription || null,
+          public_link: editPublicLink,
         }),
       })
 
@@ -341,6 +316,7 @@ export default function GroupDetailPage() {
     if (groupData) {
       setEditName(groupData.group.name)
       setEditDescription(groupData.group.description || "")
+      setEditPublicLink(groupData.group.public_link || false)
       setShowEditForm(true)
     }
   }
@@ -464,6 +440,31 @@ export default function GroupDetailPage() {
             <p className="mt-1 text-sm text-gray-500">
               Created: {new Date(group.created_at).toLocaleDateString()}
             </p>
+            {group.public_link && group.link_uid && (
+              <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-sm font-medium text-green-800 mb-2">Public Group Link:</p>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="text"
+                    value={`${typeof window !== 'undefined' ? window.location.origin : ''}/groups/public/${group.link_uid}`}
+                    readOnly
+                    className="flex-1 text-xs bg-white border border-green-300 rounded px-2 py-1 text-gray-700"
+                  />
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(`${typeof window !== 'undefined' ? window.location.origin : ''}/groups/public/${group.link_uid}`)
+                      alert('Public link copied to clipboard!')
+                    }}
+                    className="px-2 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700"
+                  >
+                    Copy
+                  </button>
+                </div>
+                <p className="text-xs text-green-600 mt-1">
+                  Share this link to allow anyone to view this group and its public events
+                </p>
+              </div>
+            )}
           </div>
           <div className="flex space-x-3">
             {canEdit && (
@@ -536,6 +537,19 @@ export default function GroupDetailPage() {
                 onChange={setEditDescription}
                 placeholder="Enter group description (supports Markdown formatting)"
               />
+              <div>
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={editPublicLink}
+                    onChange={(e) => setEditPublicLink(e.target.checked)}
+                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                  />
+                  <span className="ml-2 text-sm text-gray-700">
+                    Enable public link (allows anyone to view this group)
+                  </span>
+                </label>
+              </div>
               <div className="flex justify-end space-x-3">
                 <button
                   type="button"
@@ -1133,6 +1147,9 @@ export default function GroupDetailPage() {
                           )}
                           {event.messenger_link && (
                             <p><strong>Messenger:</strong> <a href={event.messenger_link} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">Join Group</a></p>
+                          )}
+                          {event.public_link && event.link_uid && (
+                            <p><strong>Share Link:</strong> <a href={`/events/invite/${event.link_uid}`} target="_blank" rel="noopener noreferrer" className="text-green-600 hover:text-green-800 underline">Share Event Invitation</a></p>
                           )}
                           <p><strong>Created by:</strong> {event.created_by_name || event.created_by_email}</p>
                           {event.public_link && event.link_uid && (

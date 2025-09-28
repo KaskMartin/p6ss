@@ -5,35 +5,11 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
-
-interface Event {
-  id: number
-  group_id: number
-  created_by: number
-  title: string
-  subtitle: string | null
-  description: string | null
-  start_datetime: string
-  end_datetime: string
-  address: string | null
-  location_lat: number | null
-  location_lng: number | null
-  list_item_picture: string | null
-  header_picture: string | null
-  background_picture: string | null
-  invite_paper_image: string | null
-  public_link: boolean
-  link_uid: string | null
-  messenger_link: string | null
-  created_at: string
-  updated_at: string
-  group_name: string
-  creator_name: string | null
-}
+import { EventWithGroup } from "@/types/db"
 
 export default function EventsPage() {
   const { data: session, status } = useSession()
-  const [events, setEvents] = useState<Event[]>([])
+  const [events, setEvents] = useState<EventWithGroup[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 

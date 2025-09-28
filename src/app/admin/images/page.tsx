@@ -4,18 +4,7 @@ import { useSession } from "next-auth/react"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-
-interface Image {
-  id: number
-  uid: string
-  url: string
-  thumb_url: string | null
-  width: number | null
-  height: number | null
-  type: 'list_item' | 'header' | 'background' | 'invite_paper'
-  created_at: string
-  updated_at: string
-}
+import { Image } from "@/types/db"
 
 export default function AdminImagesPage() {
   const { data: session, status } = useSession()

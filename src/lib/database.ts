@@ -65,6 +65,8 @@ export interface Database {
     name: string
     description: string | null
     created_by: number
+    public_link: boolean
+    link_uid: string | null
     created_at: Date
     updated_at: Date
   }

@@ -93,6 +93,8 @@ export async function GET(
       name: group.name,
       description: group.description,
       created_by: Number(group.created_by),
+      public_link: group.public_link,
+      link_uid: group.link_uid,
       created_at: group.created_at,
       updated_at: group.updated_at
     }
@@ -136,7 +138,7 @@ export async function PUT(
     const groupId = parseInt(id)
     const userId = parseInt(session.user.id)
 
-    const { name, description } = await request.json()
+    const { name, description, public_link } = await request.json()
 
     if (!name) {
       return NextResponse.json({ error: 'Group name is required' }, { status: 400 })
@@ -179,12 +181,25 @@ export async function PUT(
       return NextResponse.json({ error: 'Only group admins can edit group details' }, { status: 403 })
     }
 
+    // Handle public link toggle
+    let linkUid = group.link_uid
+    if (public_link && !linkUid) {
+      // Generate new link_uid if enabling public link
+      const crypto = await import('crypto')
+      linkUid = crypto.randomBytes(16).toString('hex')
+    } else if (!public_link && linkUid) {
+      // Remove link_uid if disabling public link
+      linkUid = null
+    }
+
     // Update the group
     await db
       .updateTable('groups')
       .set({
         name,
         description: description || null,
+        public_link: public_link || false,
+        link_uid: linkUid,
         updated_at: new Date(),
       })
       .where('id', '=', groupId)

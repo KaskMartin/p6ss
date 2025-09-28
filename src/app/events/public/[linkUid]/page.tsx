@@ -5,31 +5,7 @@ import { useParams } from "next/navigation"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import { formatDateTime, formatDate, formatTime } from "@/lib/utils"
-
-interface PublicEvent {
-  id: number
-  group_id: number
-  created_by: number
-  title: string
-  subtitle: string | null
-  description: string | null
-  start_datetime: string
-  end_datetime: string
-  address: string | null
-  location_lat: number | null
-  location_lng: number | null
-  list_item_picture: string | null
-  header_picture: string | null
-  background_picture: string | null
-  invite_paper_image: string | null
-  public_link: boolean
-  link_uid: string | null
-  created_at: string
-  updated_at: string
-  created_by_name: string | null
-  created_by_email: string
-  group_name: string
-}
+import { PublicEvent } from "@/types/db"
 
 export default function PublicEventPage() {
   const params = useParams()
@@ -246,6 +222,28 @@ export default function PublicEventPage() {
                 </div>
               </div>
             )}
+
+            {/* Join Event Section */}
+            <div className="bg-white shadow rounded-lg p-8 text-center">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Want to Join This Event?</h3>
+              <p className="text-gray-600 mb-6">
+                Sign up or sign in to join this event and participate in the conversation.
+              </p>
+              <div className="flex justify-center space-x-4">
+                <a
+                  href={`/auth/signin?redirect=${encodeURIComponent(window.location.pathname)}`}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-md font-medium"
+                >
+                  Sign In
+                </a>
+                <a
+                  href={`/auth/signin?mode=signup&redirect=${encodeURIComponent(window.location.pathname)}`}
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md font-medium"
+                >
+                  Sign Up
+                </a>
+              </div>
+            </div>
 
             {/* Footer */}
             <div className="bg-gray-50 px-8 py-6 border-t border-gray-200">

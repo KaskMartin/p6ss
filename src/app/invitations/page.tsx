@@ -7,18 +7,7 @@ import Link from "next/link"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import RichTextEditor from "@/components/RichTextEditor"
-
-interface Invitation {
-  id: number
-  group_id: number
-  description: string | null
-  status: string
-  created_at: string
-  group_name: string
-  group_description: string | null
-  invited_by_name: string | null
-  invited_by_email: string | null
-}
+import { Invitation } from "@/types/db"
 
 export default function InvitationsPage() {
   const { data: session, status } = useSession()

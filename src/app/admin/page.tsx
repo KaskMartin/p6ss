@@ -4,15 +4,7 @@ import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import Link from "next/link"
-
-interface User {
-  id: number
-  email: string
-  name: string | null
-  is_admin: boolean
-  created_at: string
-  updated_at: string
-}
+import { User } from "@/types/db"
 
 export default function AdminDashboard() {
   const { data: session, status } = useSession()

@@ -93,7 +93,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid session. Please sign in again.' }, { status: 401 })
     }
 
-    const { name, description } = await request.json()
+    const { name, description, public_link } = await request.json()
     const userId = parseInt(session.user.id)
     console.log('Creating group for user ID:', userId, 'with name:', name)
 
@@ -101,9 +101,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Group name is required' }, { status: 400 })
     }
 
+    // Generate link_uid if public_link is enabled
+    let linkUid = null
+    if (public_link) {
+      const crypto = await import('crypto')
+      linkUid = crypto.randomBytes(16).toString('hex')
+    }
+
     // Create the group
     const now = new Date()
-    console.log('Creating group with values:', { name, description, created_by: userId })
+    console.log('Creating group with values:', { name, description, created_by: userId, public_link, link_uid: linkUid })
     
     const insertResult = await db
       .insertInto('groups')
@@ -111,6 +118,8 @@ export async function POST(request: Request) {
         name,
         description: description || null,
         created_by: userId,
+        public_link: public_link || false,
+        link_uid: linkUid,
         created_at: now,
         updated_at: now,
       })

@@ -7,23 +7,7 @@ import Link from "next/link"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import RichTextEditor from "@/components/RichTextEditor"
-
-interface Group {
-  id: number
-  name: string
-  description: string | null
-  created_by: number
-  created_at: string
-  joined_at?: string
-  role_name?: string
-  permissions?: string
-}
-
-interface GroupsData {
-  userGroups: Group[]
-  allGroups: Group[]
-  isGlobalAdmin: boolean
-}
+import { GroupsData } from "@/types/db"
 
 export default function GroupsPage() {
   const { data: session, status } = useSession()
@@ -34,6 +18,7 @@ export default function GroupsPage() {
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [newGroupName, setNewGroupName] = useState("")
   const [newGroupDescription, setNewGroupDescription] = useState("")
+  const [newGroupPublicLink, setNewGroupPublicLink] = useState(false)
   const [showLeaveModal, setShowLeaveModal] = useState(false)
   const [groupToLeave, setGroupToLeave] = useState<number | null>(null)
   const [leavingGroup, setLeavingGroup] = useState(false)
@@ -79,6 +64,7 @@ export default function GroupsPage() {
         body: JSON.stringify({
           name: newGroupName,
           description: newGroupDescription || null,
+          public_link: newGroupPublicLink,
         }),
       })
 
@@ -205,6 +191,19 @@ export default function GroupsPage() {
                       onChange={setNewGroupDescription}
                       placeholder="Enter group description (supports Markdown formatting)"
                     />
+              <div>
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={newGroupPublicLink}
+                    onChange={(e) => setNewGroupPublicLink(e.target.checked)}
+                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                  />
+                  <span className="ml-2 text-sm text-gray-700">
+                    Enable public link (allows anyone to view this group)
+                  </span>
+                </label>
+              </div>
               <div className="flex justify-end space-x-3">
                 <button
                   type="button"
