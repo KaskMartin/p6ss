@@ -106,6 +106,27 @@ export interface Database {
     created_at: Date
     updated_at: Date
   }
+  events: {
+    id: number
+    group_id: number
+    created_by: number
+    title: string
+    subtitle: string | null
+    description: string | null
+    start_datetime: Date
+    end_datetime: Date
+    address: string | null
+    location_lat: number | null
+    location_lng: number | null
+    list_item_picture: string | null
+    header_picture: string | null
+    background_picture: string | null
+    invite_paper_image: string | null
+    public_link: boolean
+    link_uid: string | null
+    created_at: Date
+    updated_at: Date
+  }
 }
 
 // Create Kysely instance

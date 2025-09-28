@@ -55,6 +55,25 @@ export default function GroupDetailPage() {
   const [showInvitations, setShowInvitations] = useState(false)
   const [showLeaveModal, setShowLeaveModal] = useState(false)
   const [leavingGroup, setLeavingGroup] = useState(false)
+  const [events, setEvents] = useState<any[]>([])
+  const [showEvents, setShowEvents] = useState(false)
+  const [showCreateEventForm, setShowCreateEventForm] = useState(false)
+  const [eventTitle, setEventTitle] = useState("")
+  const [eventSubtitle, setEventSubtitle] = useState("")
+  const [eventDescription, setEventDescription] = useState("")
+  const [eventStartDateTime, setEventStartDateTime] = useState("")
+  const [eventEndDateTime, setEventEndDateTime] = useState("")
+  const [eventAddress, setEventAddress] = useState("")
+  const [eventLocationLat, setEventLocationLat] = useState("")
+  const [eventLocationLng, setEventLocationLng] = useState("")
+  const [eventListItemPicture, setEventListItemPicture] = useState("")
+  const [eventHeaderPicture, setEventHeaderPicture] = useState("")
+  const [eventBackgroundPicture, setEventBackgroundPicture] = useState("")
+  const [eventInvitePaperImage, setEventInvitePaperImage] = useState("")
+  const [eventPublicLink, setEventPublicLink] = useState(false)
+  const [eventLoading, setEventLoading] = useState(false)
+  const [editingEvent, setEditingEvent] = useState<any | null>(null)
+  const [showEditEventForm, setShowEditEventForm] = useState(false)
 
   const groupId = params.id as string
 
@@ -69,6 +88,12 @@ export default function GroupDetailPage() {
     fetchGroupDetails()
     fetchInvitations()
   }, [session, status, router, groupId])
+
+  useEffect(() => {
+    if (showEvents) {
+      fetchEvents()
+    }
+  }, [showEvents])
 
   const fetchGroupDetails = async () => {
     setLoading(true)
@@ -125,6 +150,155 @@ export default function GroupDetailPage() {
 
   const cancelLeaveGroup = () => {
     setShowLeaveModal(false)
+  }
+
+  const fetchEvents = async () => {
+    try {
+      const response = await fetch(`/api/groups/${groupId}/events`)
+      if (response.ok) {
+        const data = await response.json()
+        setEvents(data.events || [])
+      }
+    } catch (err) {
+      console.error('Error fetching events:', err)
+    }
+  }
+
+  const handleCreateEvent = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!eventTitle.trim() || !eventStartDateTime || !eventEndDateTime) return
+
+    setEventLoading(true)
+    try {
+      const response = await fetch(`/api/groups/${groupId}/events`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: eventTitle,
+          subtitle: eventSubtitle || null,
+          description: eventDescription || null,
+          start_datetime: eventStartDateTime,
+          end_datetime: eventEndDateTime,
+          address: eventAddress || null,
+          location_lat: eventLocationLat || null,
+          location_lng: eventLocationLng || null,
+          list_item_picture: eventListItemPicture || null,
+          header_picture: eventHeaderPicture || null,
+          background_picture: eventBackgroundPicture || null,
+          invite_paper_image: eventInvitePaperImage || null,
+          public_link: eventPublicLink,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to create event")
+      }
+
+      // Reset form
+      setEventTitle("")
+      setEventSubtitle("")
+      setEventDescription("")
+      setEventStartDateTime("")
+      setEventEndDateTime("")
+      setEventAddress("")
+      setEventLocationLat("")
+      setEventLocationLng("")
+      setEventListItemPicture("")
+      setEventHeaderPicture("")
+      setEventBackgroundPicture("")
+      setEventInvitePaperImage("")
+      setEventPublicLink(false)
+      setShowCreateEventForm(false)
+      fetchEvents() // Refresh events list
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setEventLoading(false)
+    }
+  }
+
+  const startEditEvent = (event: any) => {
+    setEditingEvent(event)
+    setEventTitle(event.title)
+    setEventSubtitle(event.subtitle || "")
+    setEventDescription(event.description || "")
+    setEventStartDateTime(new Date(event.start_datetime).toISOString().slice(0, 16))
+    setEventEndDateTime(new Date(event.end_datetime).toISOString().slice(0, 16))
+    setEventAddress(event.address || "")
+    setEventLocationLat(event.location_lat ? event.location_lat.toString() : "")
+    setEventLocationLng(event.location_lng ? event.location_lng.toString() : "")
+    setEventListItemPicture(event.list_item_picture || "")
+    setEventHeaderPicture(event.header_picture || "")
+    setEventBackgroundPicture(event.background_picture || "")
+    setEventInvitePaperImage(event.invite_paper_image || "")
+    setEventPublicLink(event.public_link || false)
+    setShowEditEventForm(true)
+  }
+
+  const cancelEditEvent = () => {
+    setEditingEvent(null)
+    setShowEditEventForm(false)
+    // Reset form fields
+    setEventTitle("")
+    setEventSubtitle("")
+    setEventDescription("")
+    setEventStartDateTime("")
+    setEventEndDateTime("")
+    setEventAddress("")
+    setEventLocationLat("")
+    setEventLocationLng("")
+    setEventListItemPicture("")
+    setEventHeaderPicture("")
+    setEventBackgroundPicture("")
+    setEventInvitePaperImage("")
+    setEventPublicLink(false)
+  }
+
+  const handleUpdateEvent = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!eventTitle.trim() || !eventStartDateTime || !eventEndDateTime || !editingEvent) return
+
+    setEventLoading(true)
+    try {
+      const response = await fetch(`/api/groups/${groupId}/events/${editingEvent.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: eventTitle,
+          subtitle: eventSubtitle || null,
+          description: eventDescription || null,
+          start_datetime: eventStartDateTime,
+          end_datetime: eventEndDateTime,
+          address: eventAddress || null,
+          location_lat: eventLocationLat || null,
+          location_lng: eventLocationLng || null,
+          list_item_picture: eventListItemPicture || null,
+          header_picture: eventHeaderPicture || null,
+          background_picture: eventBackgroundPicture || null,
+          invite_paper_image: eventInvitePaperImage || null,
+          public_link: eventPublicLink,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to update event")
+      }
+
+      cancelEditEvent()
+      fetchEvents() // Refresh events list
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setEventLoading(false)
+    }
   }
 
   const handleEditGroup = async (e: React.FormEvent) => {
@@ -310,6 +484,12 @@ export default function GroupDetailPage() {
                 {showInvitations ? 'Hide Invitations' : 'View Invitations'}
               </button>
             )}
+            <button 
+              onClick={() => setShowEvents(!showEvents)} 
+              className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+            >
+              {showEvents ? 'Hide Events' : 'View Events'}
+            </button>
             <Link
               href="/groups"
               className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium"
@@ -459,6 +639,490 @@ export default function GroupDetailPage() {
                             Declined: {new Date(invitation.declined_at).toLocaleDateString()}
                           </p>
                         )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Events Section */}
+        {showEvents && (
+          <div className="bg-white shadow rounded-lg p-6 mb-8">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-medium text-gray-900">Group Events</h2>
+              <button
+                onClick={() => setShowCreateEventForm(!showCreateEventForm)}
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+              >
+                {showCreateEventForm ? 'Cancel' : 'Create Event'}
+              </button>
+            </div>
+
+            {/* Create Event Form */}
+            {showCreateEventForm && (
+              <div className="border border-gray-200 rounded-lg p-4 mb-6">
+                <h3 className="text-md font-medium text-gray-900 mb-4">Create New Event</h3>
+                <form onSubmit={handleCreateEvent} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Event Title *
+                      </label>
+                      <input
+                        type="text"
+                        value={eventTitle}
+                        onChange={(e) => setEventTitle(e.target.value)}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                        placeholder="Enter event title"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Subtitle
+                      </label>
+                      <input
+                        type="text"
+                        value={eventSubtitle}
+                        onChange={(e) => setEventSubtitle(e.target.value)}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                        placeholder="Enter event subtitle"
+                      />
+                    </div>
+                  </div>
+
+                  <RichTextEditor
+                    label="Event Description"
+                    value={eventDescription}
+                    onChange={setEventDescription}
+                    placeholder="Enter event description (supports Markdown formatting)"
+                  />
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Start Date & Time *
+                      </label>
+                      <input
+                        type="datetime-local"
+                        value={eventStartDateTime}
+                        onChange={(e) => setEventStartDateTime(e.target.value)}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        End Date & Time *
+                      </label>
+                      <input
+                        type="datetime-local"
+                        value={eventEndDateTime}
+                        onChange={(e) => setEventEndDateTime(e.target.value)}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Address
+                    </label>
+                    <input
+                      type="text"
+                      value={eventAddress}
+                      onChange={(e) => setEventAddress(e.target.value)}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="Enter event address"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Latitude
+                      </label>
+                      <input
+                        type="number"
+                        step="any"
+                        value={eventLocationLat}
+                        onChange={(e) => setEventLocationLat(e.target.value)}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                        placeholder="Enter latitude"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Longitude
+                      </label>
+                      <input
+                        type="number"
+                        step="any"
+                        value={eventLocationLng}
+                        onChange={(e) => setEventLocationLng(e.target.value)}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                        placeholder="Enter longitude"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        List Item Picture URL
+                      </label>
+                      <input
+                        type="url"
+                        value={eventListItemPicture}
+                        onChange={(e) => setEventListItemPicture(e.target.value)}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                        placeholder="Enter image URL"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Header Picture URL
+                      </label>
+                      <input
+                        type="url"
+                        value={eventHeaderPicture}
+                        onChange={(e) => setEventHeaderPicture(e.target.value)}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                        placeholder="Enter image URL"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Background Picture URL
+                      </label>
+                      <input
+                        type="url"
+                        value={eventBackgroundPicture}
+                        onChange={(e) => setEventBackgroundPicture(e.target.value)}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                        placeholder="Enter image URL"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Invite Paper Image URL
+                      </label>
+                      <input
+                        type="url"
+                        value={eventInvitePaperImage}
+                        onChange={(e) => setEventInvitePaperImage(e.target.value)}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                        placeholder="Enter image URL"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Public Link Toggle */}
+                  <div className="flex items-center space-x-3">
+                    <input
+                      type="checkbox"
+                      id="eventPublicLink"
+                      checked={eventPublicLink}
+                      onChange={(e) => setEventPublicLink(e.target.checked)}
+                      className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                    />
+                    <label htmlFor="eventPublicLink" className="text-sm font-medium text-gray-700">
+                      Make this event publicly accessible (generates a shareable link)
+                    </label>
+                  </div>
+
+                  <div className="flex justify-end space-x-3">
+                    <button
+                      type="button"
+                      onClick={() => setShowCreateEventForm(false)}
+                      className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={eventLoading}
+                      className="px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {eventLoading ? 'Creating...' : 'Create Event'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {/* Edit Event Form */}
+            {showEditEventForm && editingEvent && (
+              <div className="border border-gray-200 rounded-lg p-4 mb-6">
+                <h3 className="text-md font-medium text-gray-900 mb-4">Edit Event</h3>
+                <form onSubmit={handleUpdateEvent} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Event Title *
+                      </label>
+                      <input
+                        type="text"
+                        value={eventTitle}
+                        onChange={(e) => setEventTitle(e.target.value)}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                        placeholder="Enter event title"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Subtitle
+                      </label>
+                      <input
+                        type="text"
+                        value={eventSubtitle}
+                        onChange={(e) => setEventSubtitle(e.target.value)}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                        placeholder="Enter event subtitle"
+                      />
+                    </div>
+                  </div>
+
+                  <RichTextEditor
+                    label="Event Description"
+                    value={eventDescription}
+                    onChange={setEventDescription}
+                    placeholder="Enter event description (supports Markdown formatting)"
+                  />
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Start Date & Time *
+                      </label>
+                      <input
+                        type="datetime-local"
+                        value={eventStartDateTime}
+                        onChange={(e) => setEventStartDateTime(e.target.value)}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        End Date & Time *
+                      </label>
+                      <input
+                        type="datetime-local"
+                        value={eventEndDateTime}
+                        onChange={(e) => setEventEndDateTime(e.target.value)}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Address
+                    </label>
+                    <input
+                      type="text"
+                      value={eventAddress}
+                      onChange={(e) => setEventAddress(e.target.value)}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="Enter event address"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Latitude
+                      </label>
+                      <input
+                        type="number"
+                        step="any"
+                        value={eventLocationLat}
+                        onChange={(e) => setEventLocationLat(e.target.value)}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                        placeholder="Enter latitude"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Longitude
+                      </label>
+                      <input
+                        type="number"
+                        step="any"
+                        value={eventLocationLng}
+                        onChange={(e) => setEventLocationLng(e.target.value)}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                        placeholder="Enter longitude"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        List Item Picture URL
+                      </label>
+                      <input
+                        type="url"
+                        value={eventListItemPicture}
+                        onChange={(e) => setEventListItemPicture(e.target.value)}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                        placeholder="Enter image URL"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Header Picture URL
+                      </label>
+                      <input
+                        type="url"
+                        value={eventHeaderPicture}
+                        onChange={(e) => setEventHeaderPicture(e.target.value)}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                        placeholder="Enter image URL"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Background Picture URL
+                      </label>
+                      <input
+                        type="url"
+                        value={eventBackgroundPicture}
+                        onChange={(e) => setEventBackgroundPicture(e.target.value)}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                        placeholder="Enter image URL"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Invite Paper Image URL
+                      </label>
+                      <input
+                        type="url"
+                        value={eventInvitePaperImage}
+                        onChange={(e) => setEventInvitePaperImage(e.target.value)}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                        placeholder="Enter image URL"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Public Link Toggle */}
+                  <div className="flex items-center space-x-3">
+                    <input
+                      type="checkbox"
+                      id="editEventPublicLink"
+                      checked={eventPublicLink}
+                      onChange={(e) => setEventPublicLink(e.target.checked)}
+                      className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                    />
+                    <label htmlFor="editEventPublicLink" className="text-sm font-medium text-gray-700">
+                      Make this event publicly accessible (generates a shareable link)
+                    </label>
+                  </div>
+
+                  <div className="flex justify-end space-x-3">
+                    <button
+                      type="button"
+                      onClick={cancelEditEvent}
+                      className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={eventLoading}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {eventLoading ? 'Updating...' : 'Update Event'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {/* Events List */}
+            {events.length === 0 ? (
+              <p className="text-gray-500">No events created yet.</p>
+            ) : (
+              <div className="space-y-4">
+                {events.map((event) => (
+                  <div key={event.id} className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <h3 className="text-lg font-medium text-gray-900">{event.title}</h3>
+                        {event.subtitle && (
+                          <p className="text-sm text-gray-600 mt-1">{event.subtitle}</p>
+                        )}
+                        {event.description && (
+                          <div className="mt-2 prose prose-sm max-w-none prose-gray">
+                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                              {event.description}
+                            </ReactMarkdown>
+                          </div>
+                        )}
+                        <div className="mt-2 text-sm text-gray-500">
+                          <p><strong>Start:</strong> {new Date(event.start_datetime).toLocaleString()}</p>
+                          <p><strong>End:</strong> {new Date(event.end_datetime).toLocaleString()}</p>
+                          {event.address && <p><strong>Address:</strong> {event.address}</p>}
+                          {event.location_lat && event.location_lng && (
+                            <p><strong>Location:</strong> {event.location_lat}, {event.location_lng}</p>
+                          )}
+                          <p><strong>Created by:</strong> {event.created_by_name || event.created_by_email}</p>
+                          {event.public_link && event.link_uid && (
+                            <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-md">
+                              <p className="text-sm font-medium text-green-800 mb-2">Public Link:</p>
+                              <div className="flex items-center space-x-2">
+                                <input
+                                  type="text"
+                                  value={`${window.location.origin}/events/public/${event.link_uid}`}
+                                  readOnly
+                                  className="flex-1 text-xs bg-white border border-green-300 rounded px-2 py-1 text-gray-700"
+                                />
+                                <button
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(`${window.location.origin}/events/public/${event.link_uid}`)
+                                    alert('Link copied to clipboard!')
+                                  }}
+                                  className="px-2 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700"
+                                >
+                                  Copy
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end space-y-2">
+                        {event.list_item_picture && (
+                          <div className="mb-2">
+                            <img
+                              src={event.list_item_picture}
+                              alt={event.title}
+                              className="w-20 h-20 object-cover rounded-md"
+                            />
+                          </div>
+                        )}
+                        <button
+                          onClick={() => startEditEvent(event)}
+                          className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+                        >
+                          Edit Event
+                        </button>
                       </div>
                     </div>
                   </div>
