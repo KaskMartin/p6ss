@@ -49,6 +49,7 @@ export async function POST(
         user_id: userId,
         group_id: groupId,
         joined_at: now,
+        need_admin_approve: false, // Direct addition doesn't need approval
         created_at: now,
         updated_at: now,
       })

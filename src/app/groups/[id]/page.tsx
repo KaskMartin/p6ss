@@ -366,6 +366,33 @@ export default function GroupDetailPage() {
     }
   }
 
+  const handleMemberApproval = async (memberId: number, action: 'approve' | 'decline') => {
+    try {
+      const endpoint = action === 'approve' 
+        ? `/api/groups/${groupId}/members/${memberId}/approve`
+        : `/api/groups/${groupId}/members/${memberId}/decline`
+      
+      const method = action === 'approve' ? 'POST' : 'DELETE'
+      
+      const response = await fetch(endpoint, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || `Failed to ${action} member`)
+      }
+
+      // Refresh the group details to update the members list
+      fetchGroupDetails()
+    } catch (err: any) {
+      setError(err.message)
+    }
+  }
+
   const canEdit = groupData?.userRole?.role_name === 'admin' || 
                   (groupData?.group.created_by === parseInt(session?.user?.id || '0')) ||
                   session?.user?.isAdmin
@@ -1262,6 +1289,28 @@ export default function GroupDetailPage() {
                           {member.role_name && (
                             <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
                               {member.role_name}
+                            </span>
+                          )}
+                          {member.need_admin_approve && (<span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">NEED ADMIN APPROVE</span>)}
+                          {member.need_admin_approve && canEdit && (
+                            <div className="flex space-x-2">
+                              <button
+                                onClick={() => handleMemberApproval(member.id, 'approve')}
+                                className="px-3 py-1 bg-green-600 text-white text-xs font-medium rounded hover:bg-green-700"
+                              >
+                                Accept
+                              </button>
+                              <button
+                                onClick={() => handleMemberApproval(member.id, 'decline')}
+                                className="px-3 py-1 bg-red-600 text-white text-xs font-medium rounded hover:bg-red-700"
+                              >
+                                Decline
+                              </button>
+                            </div>
+                          )}
+                          {member.need_admin_approve && !canEdit && (
+                            <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                              Pending Approval
                             </span>
                           )}
                         </div>

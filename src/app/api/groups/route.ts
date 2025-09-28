@@ -142,6 +142,7 @@ export async function POST(request: Request) {
         user_id: userId,
         group_id: groupId,
         joined_at: now,
+        need_admin_approve: false, // Group creator doesn't need approval
         created_at: now,
         updated_at: now,
       })

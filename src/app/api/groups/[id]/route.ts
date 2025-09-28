@@ -64,6 +64,7 @@ export async function GET(
         'users.name',
         'users.is_admin',
         'group_members.joined_at',
+        'group_members.need_admin_approve',
         'group_roles.name as role_name',
         'group_roles.permissions'
       ])

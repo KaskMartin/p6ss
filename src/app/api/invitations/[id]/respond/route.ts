@@ -72,6 +72,7 @@ export async function POST(
           user_id: userId,
           group_id: invitation.group_id,
           joined_at: now,
+          need_admin_approve: false, // Invitation acceptance doesn't need approval
           created_at: now,
           updated_at: now,
         })

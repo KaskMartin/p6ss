@@ -51,15 +51,34 @@ export default function PublicGroupPage() {
     setActionLoading(true)
     setActionMessage(null)
     try {
-      // This would typically be an API call to join/decline the group
-      // For now, we'll simulate it
-      console.log(`User ${session.user.id} ${action}ed invitation for group ${group.id}`)
-      setActionMessage(`You have successfully ${action}ed the invitation for "${group.name}".`)
-      
-      // In a real app, you'd redirect to the group page or show success message
-      setTimeout(() => {
-        router.push('/groups')
-      }, 2000)
+      if (action === 'accept') {
+        // Call the API to join the group
+        const response = await fetch(`/api/groups/public/${linkUid}/join`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+
+        const data = await response.json()
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to join group')
+        }
+
+        setActionMessage(data.message)
+        
+        // Redirect to groups page after successful join
+        setTimeout(() => {
+          router.push('/groups')
+        }, 2000)
+      } else {
+        // For decline, just show a message and redirect
+        setActionMessage(`You have declined the invitation for "${group.name}".`)
+        setTimeout(() => {
+          router.push('/groups')
+        }, 2000)
+      }
     } catch (err: any) {
       setActionMessage(`Failed to ${action} invitation: ${err.message}`)
     } finally {

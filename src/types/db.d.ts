@@ -33,6 +33,7 @@ export interface Member {
   name: string | null
   is_admin: boolean
   joined_at: string
+  need_admin_approve: boolean
   role_name: string | null
   permissions: string | null
 }

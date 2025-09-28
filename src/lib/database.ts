@@ -75,6 +75,7 @@ export interface Database {
     user_id: number
     group_id: number
     joined_at: Date
+    need_admin_approve: boolean
     created_at: Date
     updated_at: Date
   }
