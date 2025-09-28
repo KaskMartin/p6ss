@@ -473,68 +473,73 @@ export default function AdminImagesPage() {
             </div>
           ) : (
             <div className="border-t border-gray-200">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+              <div className="space-y-4 p-6">
                 {images.map((image) => (
                   <div key={image.id} className="border border-gray-200 rounded-lg overflow-hidden">
-                    {/* Image Preview */}
-                    <div className="aspect-w-16 aspect-h-9 bg-gray-100">
-                      <img
-                        src={image.thumb_url || image.url}
-                        alt={`${image.type} image`}
-                        className="w-full h-48 object-cover"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement
-                          target.src = '/placeholder-image.png'
-                        }}
-                      />
-                    </div>
-
-                    {/* Image Details */}
-                    <div className="p-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <h4 className="text-sm font-medium text-gray-900 capitalize">
-                          {image.type.replace('_', ' ')}
-                        </h4>
-                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                          {image.uid.slice(0, 8)}...
-                        </span>
+                    <div className="flex">
+                      {/* Left side - Thumbnail */}
+                      <div className="w-[150px] h-[200px] bg-gray-100 flex-shrink-0">
+                        <img
+                          src={image.thumb_url || image.url}
+                          alt={`${image.type} image`}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement
+                            target.src = '/placeholder-image.png'
+                          }}
+                        />
                       </div>
 
-                      <div className="text-xs text-gray-500 space-y-1">
-                        <p><strong>URL:</strong> {image.url.length > 30 ? `${image.url.slice(0, 30)}...` : image.url}</p>
-                        {image.thumb_url && (
-                          <p><strong>Thumb:</strong> {image.thumb_url.length > 30 ? `${image.thumb_url.slice(0, 30)}...` : image.thumb_url}</p>
-                        )}
-                        {image.width && image.height && (
-                          <p><strong>Dimensions:</strong> {image.width} × {image.height}px</p>
-                        )}
-                        <p><strong>Created:</strong> {new Date(image.created_at).toLocaleDateString()}</p>
-                      </div>
+                      {/* Right side - Details */}
+                      <div className="flex-1 p-4 flex flex-col justify-between">
+                        <div>
+                          <div className="flex justify-between items-start mb-2">
+                            <h4 className="text-sm font-medium text-gray-900 capitalize">
+                              {image.type.replace('_', ' ')}
+                            </h4>
+                            <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                              {image.uid.slice(0, 8)}...
+                            </span>
+                          </div>
 
-                      {/* Actions */}
-                      <div className="mt-4 flex justify-between items-center">
-                        <div className="flex space-x-3">
-                          <a
-                            href={image.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs text-blue-600 hover:text-blue-800"
-                          >
-                            View Full Size
-                          </a>
+                          <div className="text-xs text-gray-500 space-y-1">
+                            <p><strong>URL:</strong> {image.url.length > 40 ? `${image.url.slice(0, 40)}...` : image.url}</p>
+                            {image.thumb_url && (
+                              <p><strong>Thumb:</strong> {image.thumb_url.length > 40 ? `${image.thumb_url.slice(0, 40)}...` : image.thumb_url}</p>
+                            )}
+                            {image.width && image.height && (
+                              <p><strong>Dimensions:</strong> {image.width} × {image.height}px</p>
+                            )}
+                            <p><strong>Created:</strong> {new Date(image.created_at).toLocaleDateString()}</p>
+                            <p><strong>Updated:</strong> {new Date(image.updated_at).toLocaleDateString()}</p>
+                          </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="mt-4 flex justify-between items-center">
+                          <div className="flex space-x-3">
+                            <a
+                              href={image.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs text-blue-600 hover:text-blue-800"
+                            >
+                              View Full Size
+                            </a>
+                            <button
+                              onClick={() => startEditImage(image)}
+                              className="text-xs text-green-600 hover:text-green-800"
+                            >
+                              Edit
+                            </button>
+                          </div>
                           <button
-                            onClick={() => startEditImage(image)}
-                            className="text-xs text-green-600 hover:text-green-800"
+                            onClick={() => handleDeleteImage(image.id)}
+                            className="text-xs text-red-600 hover:text-red-800"
                           >
-                            Edit
+                            Delete
                           </button>
                         </div>
-                        <button
-                          onClick={() => handleDeleteImage(image.id)}
-                          className="text-xs text-red-600 hover:text-red-800"
-                        >
-                          Delete
-                        </button>
                       </div>
                     </div>
                   </div>
