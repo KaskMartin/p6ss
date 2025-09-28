@@ -27,6 +27,7 @@ export interface Database {
     email: string
     name: string | null
     password: string
+    is_admin: boolean
     created_at: Date
     updated_at: Date
   }

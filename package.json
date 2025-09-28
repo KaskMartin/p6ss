@@ -11,7 +11,8 @@
     "docker:start": "docker compose up",
     "docker:start:db": "docker compose up -d db-p6ss",
     "migrate": "npx tsx src/lib/database/migrate.ts",
-    "setup-db": "npx tsx scripts/setup-db.ts"
+    "setup-db": "npx tsx scripts/setup-db.ts",
+    "make-admin": "npx tsx src/lib/database/make-first-user-admin.ts"
   },
   "dependencies": {
     "@types/bcryptjs": "^3.0.0",

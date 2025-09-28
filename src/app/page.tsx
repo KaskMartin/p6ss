@@ -27,7 +27,20 @@ export default function Home() {
                 <>
                   <span className="text-gray-700">
                     Welcome, {session.user?.email}
+                    {session.user?.isAdmin && (
+                      <span className="ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                        Admin
+                      </span>
+                    )}
                   </span>
+                  {session.user?.isAdmin && (
+                    <Link
+                      href="/admin"
+                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                    >
+                      Admin Dashboard
+                    </Link>
+                  )}
                   <button
                     onClick={() => signOut()}
                     className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium"
