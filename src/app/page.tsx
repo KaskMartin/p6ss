@@ -81,9 +81,17 @@ export default function Home() {
                 Welcome to P6SS
               </h2>
               {session ? (
-                <p className="text-gray-600">
-                  You are successfully signed in!
-                </p>
+                <div>
+                  <p className="text-gray-600">
+                    You are successfully signed in!
+                  </p>
+                  <Link
+                  href="/generate-image"
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                  >
+                  Generate Image
+                  </Link>
+                </div>
               ) : (
                 <p className="text-gray-600">
                   Please sign in to access the application.
