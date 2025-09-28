@@ -71,6 +71,7 @@ export default function GroupDetailPage() {
   const [eventBackgroundPicture, setEventBackgroundPicture] = useState("")
   const [eventInvitePaperImage, setEventInvitePaperImage] = useState("")
   const [eventPublicLink, setEventPublicLink] = useState(false)
+  const [eventMessengerLink, setEventMessengerLink] = useState("")
   const [eventLoading, setEventLoading] = useState(false)
   const [editingEvent, setEditingEvent] = useState<any | null>(null)
   const [showEditEventForm, setShowEditEventForm] = useState(false)
@@ -189,6 +190,7 @@ export default function GroupDetailPage() {
           background_picture: eventBackgroundPicture || null,
           invite_paper_image: eventInvitePaperImage || null,
           public_link: eventPublicLink,
+          messenger_link: eventMessengerLink || null,
         }),
       })
 
@@ -236,6 +238,7 @@ export default function GroupDetailPage() {
     setEventBackgroundPicture(event.background_picture || "")
     setEventInvitePaperImage(event.invite_paper_image || "")
     setEventPublicLink(event.public_link || false)
+    setEventMessengerLink(event.messenger_link || "")
     setShowEditEventForm(true)
   }
 
@@ -256,6 +259,7 @@ export default function GroupDetailPage() {
     setEventBackgroundPicture("")
     setEventInvitePaperImage("")
     setEventPublicLink(false)
+    setEventMessengerLink("")
   }
 
   const handleUpdateEvent = async (e: React.FormEvent) => {
@@ -283,6 +287,7 @@ export default function GroupDetailPage() {
           background_picture: eventBackgroundPicture || null,
           invite_paper_image: eventInvitePaperImage || null,
           public_link: eventPublicLink,
+          messenger_link: eventMessengerLink || null,
         }),
       })
 
@@ -824,6 +829,20 @@ export default function GroupDetailPage() {
                     </div>
                   </div>
 
+                  {/* Messenger Link */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Messenger Link (WhatsApp/Telegram)
+                    </label>
+                    <input
+                      type="url"
+                      value={eventMessengerLink}
+                      onChange={(e) => setEventMessengerLink(e.target.value)}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="Enter WhatsApp or Telegram group link"
+                    />
+                  </div>
+
                   {/* Public Link Toggle */}
                   <div className="flex items-center space-x-3">
                     <input
@@ -1021,6 +1040,20 @@ export default function GroupDetailPage() {
                     </div>
                   </div>
 
+                  {/* Messenger Link */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Messenger Link (WhatsApp/Telegram)
+                    </label>
+                    <input
+                      type="url"
+                      value={eventMessengerLink}
+                      onChange={(e) => setEventMessengerLink(e.target.value)}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="Enter WhatsApp or Telegram group link"
+                    />
+                  </div>
+
                   {/* Public Link Toggle */}
                   <div className="flex items-center space-x-3">
                     <input
@@ -1081,6 +1114,9 @@ export default function GroupDetailPage() {
                           {event.address && <p><strong>Address:</strong> {event.address}</p>}
                           {event.location_lat && event.location_lng && (
                             <p><strong>Location:</strong> {event.location_lat}, {event.location_lng}</p>
+                          )}
+                          {event.messenger_link && (
+                            <p><strong>Messenger:</strong> <a href={event.messenger_link} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">Join Group</a></p>
                           )}
                           <p><strong>Created by:</strong> {event.created_by_name || event.created_by_email}</p>
                           {event.public_link && event.link_uid && (

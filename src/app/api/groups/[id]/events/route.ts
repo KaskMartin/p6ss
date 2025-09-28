@@ -53,6 +53,7 @@ export async function GET(
         'events.invite_paper_image',
         'events.public_link',
         'events.link_uid',
+        'events.messenger_link',
         'events.created_at',
         'events.updated_at',
         'users.name as created_by_name',
@@ -104,7 +105,8 @@ export async function POST(
       header_picture,
       background_picture,
       invite_paper_image,
-      public_link
+      public_link,
+      messenger_link
     } = await request.json()
 
     if (!title || !start_datetime || !end_datetime) {
@@ -145,6 +147,7 @@ export async function POST(
         invite_paper_image: invite_paper_image || null,
         public_link: public_link || false,
         link_uid: linkUid,
+        messenger_link: messenger_link || null,
         created_at: now,
         updated_at: now,
       })

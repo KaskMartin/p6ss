@@ -124,6 +124,18 @@ export interface Database {
     invite_paper_image: string | null
     public_link: boolean
     link_uid: string | null
+    messenger_link: string | null
+    created_at: Date
+    updated_at: Date
+  }
+  images: {
+    id: number
+    uid: string
+    url: string
+    thumb_url: string | null
+    width: number | null
+    height: number | null
+    type: 'list_item' | 'header' | 'background' | 'invite_paper'
     created_at: Date
     updated_at: Date
   }

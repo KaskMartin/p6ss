@@ -31,6 +31,7 @@ export async function GET(
         'events.invite_paper_image',
         'events.public_link',
         'events.link_uid',
+        'events.messenger_link',
         'events.created_at',
         'events.updated_at',
         'users.name as created_by_name',

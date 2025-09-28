@@ -32,3 +32,13 @@ export function formatTime(date: Date): string {
     hour12: true,
   }).format(date)
 }
+
+export function generateImageUID(): string {
+  return randomBytes(16).toString('hex')
+}
+
+export function generateImageThumbnailUrl(url: string): string {
+  // This is a placeholder - in a real implementation, you'd use an image processing service
+  // like Cloudinary, ImageKit, or AWS Lambda to generate thumbnails
+  return url.replace(/(\.[^.]+)$/, '_thumb$1')
+}
