@@ -4,6 +4,8 @@ import { useSession } from "next-auth/react"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 
 interface Invitation {
   id: number
@@ -124,9 +126,12 @@ export default function InvitationsPage() {
                       <div className="mt-3 p-3 bg-gray-50 rounded-md">
                         <p className="text-sm text-gray-700">
                           <span className="font-medium">Message from {invitation.invited_by_name || invitation.invited_by_email}:</span>
-                          <br />
-                          {invitation.description}
                         </p>
+                        <div className="mt-2 prose prose-sm max-w-none">
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {invitation.description}
+                          </ReactMarkdown>
+                        </div>
                       </div>
                     )}
                     <div className="mt-3 text-sm text-gray-500">

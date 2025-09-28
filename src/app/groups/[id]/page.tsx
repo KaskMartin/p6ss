@@ -4,6 +4,9 @@ import { useSession } from "next-auth/react"
 import { useEffect, useState } from "react"
 import { useRouter, useParams } from "next/navigation"
 import Link from "next/link"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
+import RichTextEditor from "@/components/RichTextEditor"
 
 interface Group {
   id: number
@@ -257,7 +260,11 @@ export default function GroupDetailPage() {
           <div>
             <h1 className="text-3xl font-extrabold text-gray-900">{group.name}</h1>
             {group.description && (
-              <p className="mt-2 text-gray-600">{group.description}</p>
+              <div className="mt-2 text-gray-600 prose prose-sm max-w-none">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {group.description}
+                </ReactMarkdown>
+              </div>
             )}
             <p className="mt-1 text-sm text-gray-500">
               Created: {new Date(group.created_at).toLocaleDateString()}
@@ -322,19 +329,12 @@ export default function GroupDetailPage() {
                   required
                 />
               </div>
-              <div>
-                <label htmlFor="editDescription" className="block text-sm font-medium text-gray-700">
-                  Description
-                </label>
-                <textarea
-                  id="editDescription"
-                  value={editDescription}
-                  onChange={(e) => setEditDescription(e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                  placeholder="Enter group description (optional)"
-                  rows={3}
-                />
-              </div>
+              <RichTextEditor
+                label="Description"
+                value={editDescription}
+                onChange={setEditDescription}
+                placeholder="Enter group description (supports Markdown formatting)"
+              />
               <div className="flex justify-end space-x-3">
                 <button
                   type="button"
@@ -374,19 +374,12 @@ export default function GroupDetailPage() {
                   required
                 />
               </div>
-              <div>
-                <label htmlFor="inviteDescription" className="block text-sm font-medium text-gray-700">
-                  Invitation Message
-                </label>
-                <textarea
-                  id="inviteDescription"
-                  value={inviteDescription}
-                  onChange={(e) => setInviteDescription(e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                  placeholder="Optional message for the invitation"
-                  rows={3}
-                />
-              </div>
+              <RichTextEditor
+                label="Invitation Message"
+                value={inviteDescription}
+                onChange={setInviteDescription}
+                placeholder="Optional message for the invitation (supports Markdown)"
+              />
               <div className="flex justify-end space-x-3">
                 <button
                   type="button"

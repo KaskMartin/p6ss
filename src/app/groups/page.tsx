@@ -4,6 +4,9 @@ import { useSession } from "next-auth/react"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
+import RichTextEditor from "@/components/RichTextEditor"
 
 interface Group {
   id: number
@@ -171,19 +174,12 @@ export default function GroupsPage() {
                   required
                 />
               </div>
-              <div>
-                <label htmlFor="groupDescription" className="block text-sm font-medium text-gray-700">
-                  Description
-                </label>
-                <textarea
-                  id="groupDescription"
-                  value={newGroupDescription}
-                  onChange={(e) => setNewGroupDescription(e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                  placeholder="Enter group description (optional)"
-                  rows={3}
-                />
-              </div>
+                    <RichTextEditor
+                      label="Description"
+                      value={newGroupDescription}
+                      onChange={setNewGroupDescription}
+                      placeholder="Enter group description (supports Markdown formatting)"
+                    />
               <div className="flex justify-end space-x-3">
                 <button
                   type="button"
@@ -234,7 +230,11 @@ export default function GroupsPage() {
                           </Link>
                         </div>
                         {group.description && (
-                          <div className="text-gray-600 mt-1">{group.description}</div>
+                          <div className="text-gray-600 mt-1 prose prose-sm max-w-none">
+                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                              {group.description}
+                            </ReactMarkdown>
+                          </div>
                         )}
                         {group.role_name && (
                           <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 mt-1">
@@ -288,7 +288,11 @@ export default function GroupsPage() {
                           </Link>
                         </div>
                         {group.description && (
-                          <div className="text-gray-600 mt-1">{group.description}</div>
+                          <div className="text-gray-600 mt-1 prose prose-sm max-w-none">
+                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                              {group.description}
+                            </ReactMarkdown>
+                          </div>
                         )}
                         <div className="text-xs text-gray-500 mt-1">
                           Created: {new Date(group.created_at).toLocaleDateString()}
