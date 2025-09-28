@@ -488,7 +488,7 @@ export default function AdminImagesPage() {
             </div>
           ) : (
             <div className="border-t border-gray-200">
-              <div className="space-y-4 p-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 p-6">
                 {images.map((image) => (
                   <div key={image.id} className="border border-gray-200 rounded-lg overflow-hidden">
                     <div className="flex">
@@ -517,16 +517,28 @@ export default function AdminImagesPage() {
                             </span>
                           </div>
 
-                          <div className="text-xs text-gray-500 space-y-1">
-                            <p><strong>URL:</strong> {image.url.length > 40 ? `${image.url.slice(0, 40)}...` : image.url}</p>
+                          <div className="text-xs text-gray-500 space-y-2">
+                            <div>
+                              <p className="font-medium text-gray-700 mb-1">Main URL:</p>
+                              <p className="break-all text-gray-600">
+                                {image.url}
+                              </p>
+                            </div>
                             {image.thumb_url && (
-                              <p><strong>Thumb:</strong> {image.thumb_url.length > 40 ? `${image.thumb_url.slice(0, 40)}...` : image.thumb_url}</p>
+                              <div>
+                                <p className="font-medium text-gray-700 mb-1">Thumbnail URL:</p>
+                                <p className="break-all text-gray-600">
+                                  {image.thumb_url}
+                                </p>
+                              </div>
                             )}
-                            {image.width && image.height && (
-                              <p><strong>Dimensions:</strong> {image.width} × {image.height}px</p>
-                            )}
-                            <p><strong>Created:</strong> {new Date(image.created_at).toLocaleDateString()}</p>
-                            <p><strong>Updated:</strong> {new Date(image.updated_at).toLocaleDateString()}</p>
+                            <div className="flex justify-between text-xs">
+                              {image.width && image.height && (
+                                <span><strong>Dimensions:</strong> {image.width} × {image.height}px</span>
+                              )}
+                              <span><strong>Created:</strong> {new Date(image.created_at).toLocaleDateString()}</span>
+                              <span><strong>Updated:</strong> {new Date(image.updated_at).toLocaleDateString()}</span>
+                            </div>
                           </div>
                         </div>
 
