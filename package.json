@@ -3,16 +3,19 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "local": "yarn docker:start:db && yarn dev",
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
     "docker:start": "docker compose up",
-    "docker:start:db": "docker compose up -d db-p6ss"
+    "docker:start:db": "docker compose up -d db-p6ss",
+    "migrate": "npx tsx lib/database/migrate.ts"
   },
   "dependencies": {
     "kysely": "^0.28.7",
     "next": "15.5.4",
+    "next-auth": "^4.24.11",
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },
@@ -26,6 +29,5 @@
     "eslint-config-next": "15.5.4",
     "tailwindcss": "^4",
     "typescript": "^5"
-  },
-  "packageManager": "yarn@4.3.0"
+  }
 }
