@@ -399,6 +399,8 @@ export default function GroupDetailPage() {
   
   const canInvite = canEdit // Same permissions as editing
 
+  console.log('XXX GroupData', groupData);
+
   if (status === "loading" || loading) {
     return (
       <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
@@ -1291,7 +1293,7 @@ export default function GroupDetailPage() {
                               {member.role_name}
                             </span>
                           )}
-                          {member.need_admin_approve && (<span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">NEED ADMIN APPROVE</span>)}
+                          {member.need_admin_approve && (<span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">AN USER FROM PUBLIC LINK</span>)}
                           {member.need_admin_approve && canEdit && (
                             <div className="flex space-x-2">
                               <button

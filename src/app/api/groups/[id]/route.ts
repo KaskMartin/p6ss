@@ -106,6 +106,7 @@ export async function GET(
       name: member.name,
       is_admin: member.is_admin,
       joined_at: member.joined_at,
+      need_admin_approve: member.need_admin_approve,
       role_name: member.role_name,
       permissions: member.permissions
     }))
