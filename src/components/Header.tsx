@@ -2,9 +2,16 @@
 
 import Link from "next/link"
 import { useSession, signOut } from "next-auth/react"
+import { usePathname } from "next/navigation"
 
 export default function Header() {
   const { data: session } = useSession()
+  const pathname = usePathname()
+
+  // Hide header on public pages
+  if (pathname?.includes('/public/') || pathname?.includes('/events/public/') || pathname?.includes('/groups/public/')) {
+    return null
+  }
 
   if (!session) {
     return null
